@@ -1,0 +1,8 @@
+version: "2"
+services:
+
+  dukiture:
+      build: .
+      ports:
+        - "8080:8080"
+      command: bash -c "cd /code && ./mvnw package && java -jar target/Dukiture-0.0.1-SNAPSHOT.jar"

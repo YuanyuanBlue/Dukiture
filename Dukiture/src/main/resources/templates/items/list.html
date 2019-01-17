@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.11.5/paper-full.min.js"></script>
+    <script type="text/javascript" src="https://kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+    <meta charset="UTF-8"></meta>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></link>
+    <title>Furniture List</title>
+
+    <style>
+        #myCanvas{
+            position: fixed;
+            top:100px;
+            z-index:-10;
+            width: 100%;
+            height: 100%;
+        }
+        #n{
+            z-index:6;
+        }
+
+        .container{
+            z-index:10;
+        }
+
+        .visuallyhidden {
+            border: 0;
+            clip: rect(0 0 0 0);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+        }
+
+
+
+
+    </style>
+
+
+
+    <script type="text/paperscript" canvas="myCanvas">
+
+    var count = 5;
+
+    var path = new Raster('f1');
+
+
+    var symbol = new Symbol(path);
+
+
+    for (var i = 0; i < count; i++) {
+	    var center = Point.random() * view.size;
+	    var placedSymbol = symbol.place(center);
+	    placedSymbol.scale(i / count);
+    }
+
+
+    function onFrame(event) {
+	    for (var i = 0; i < count; i++) {
+		    var item = project.activeLayer.children[i];
+
+		item.position.x += item.bounds.width / 80;
+
+		if (item.bounds.left > view.size.width) {
+			item.position.x = -item.bounds.width;
+		    }
+	    }
+    }
+    </script>
+
+
+
+
+</head>
+<body>
+
+<img id = "f1" class="visuallyhidden" src="image/f1.jpeg" >
+
+<nav id = "n" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Dukiture</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/items/list">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/items/new">Create</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/profile">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class = "nav-link" href="#">Hello, <span th:text="${#httpServletRequest.remoteUser}"></span> </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<input class="form-control" id="searchbar" type="text" placeholder="enter keyword">
+<div class="container">
+    <div th:if="${not #lists.isEmpty(items)}">
+        <table class="table table-striped sortable">
+            <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Price</th>
+                <th>Detail</th>
+            </tr>
+            </thead>
+            <tbody id = "items">
+            <tr th:each="item : ${items}">
+                <td th:text="${item.itemName}"></td>
+                <td th:text="${item.price}"></td>
+                <td><a th:href="${'/items/show/' + item.id}">See Detail</a> </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="btn btn-large" href="/items/new">Sell</a>
+</div>
+</body>
+<canvas id="myCanvas" resize></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#searchbar").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#items tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+</html>
